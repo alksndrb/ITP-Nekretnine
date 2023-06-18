@@ -37,23 +37,34 @@ export class OgMojProfilComponent implements OnInit {
 
   constructor(private userService: UserService, private listingService: ListingService, private agencijeService: AgencijeService) {
     this.chartOptions = {
-      series: [
-        {
-          name: "br. prod. nekretnina",
-          data: [],
-        }
-      ],
+      series: [],
       chart: {
         height: 350,
         type: "bar"
       },
-      colors: ['#FF0000'],
+      dataLabels: {
+        enabled: false
+      },
+      stroke: {
+        show: true,
+        width: 2,
+        colors: ['transparent']
+      },
+      xaxis: {
+        categories: []
+      },
+      plotOptions: {
+        bar: {
+          horizontal: false,
+          columnWidth: '55%'
+        },
+      },
       title: {
         text: "BROJ PRODATIH NEKRETNINA",
         align: "center"
       },
-      xaxis: {
-        categories: []
+      fill: {
+        opacity: 1
       }
     };
   }
@@ -87,24 +98,30 @@ export class OgMojProfilComponent implements OnInit {
               let soldListings:NumberOfSold[] = JSON.parse(JSON.stringify(resSell));
               // postavlaju se serije
               let series:number[] = this.setSeries(soldListings, categories.length);
-              let seriesA:ApexAxisChartSeries = [{data: series}];
+              let seriesA:ApexAxisChartSeries = [{name:this.user.selectedAgency, data: series}];
               this.chartOptions.series = seriesA;
             });
           });
           break;
         }
-        case "samostalniProdavac": {
-          // dohvata oglas od datog usera
-           this.listingService.getListingByOglasivac(this.user.kor_ime).then((resListing) => {
-            let listing:Listing = JSON.parse(JSON.stringify(resListing));
-            // dohvata sve prodate nekretnine za tu lokaciju
-            this.listingService.getAllSellByLocation(listing.lokacija).then((resSell) => {
-              let soldListings:NumberOfSold[] = JSON.parse(JSON.stringify(resSell));
-              // postavlaju se serije
-              let series:number[] = this.setSeries(soldListings, categories.length);
-              let seriesA:ApexAxisChartSeries = [{data: series}];
-              this.chartOptions.series = seriesA;
-            });
+        case "samostalni prodavac": {
+          // dohvata oglase od datog oglasivaca
+           this.listingService.getListingsByOglasivac(this.user.kor_ime).then((resListing) => {
+            let listings:Listing[] = JSON.parse(JSON.stringify(resListing));
+            // postavlaju se serije
+            let seriesOption:ApexAxisChartSeries = [];
+            for (let index in listings) {
+              let listing:Listing = listings[index];
+              // dohvata sve prodate nekretnine za tu lokaciju
+              this.listingService.getAllSellByLocation(listing.lokacija).then((resSell) => {
+                let soldListings:NumberOfSold[] = JSON.parse(JSON.stringify(resSell));
+                // postavlaju se serije
+                let series:number[] = this.setSeries(soldListings, categories.length);
+                let sery:any = {name: listing.lokacija, data: series};
+                seriesOption[index] = sery;
+                this.chartOptions.series = seriesOption;
+              });
+            }
           });
           break;
         }
@@ -245,28 +262,5 @@ export class OgMojProfilComponent implements OnInit {
       rezultat[i] = 0;
     return rezultat; 
   }
-
-  setCharOptions(categories1:string[], series1:number[]):void {
-    this.chartOptions = {
-      series: [
-        {
-          name: "My-series",
-          data: series1
-        }
-      ],
-      chart: {
-        height: 350,
-        type: "bar"
-      },
-      colors: ['#FF0000'],
-      title: {
-        text: "Graf"
-      },
-      xaxis: {
-        categories: categories1
-      }
-    };
-  }
-
-
+  
 }
