@@ -1,4 +1,4 @@
-import { ChartComponent, ApexAxisChartSeries, ApexChart, ApexXAxis, ApexTitleSubtitle} from "ng-apexcharts";
+import { ChartComponent, ApexAxisChartSeries, ApexChart, ApexXAxis, ApexTitleSubtitle, ApexPlotOptions, ApexYAxis, ApexFill, ApexDataLabels, ApexStroke} from "ng-apexcharts";
 export class User {
   ime: string = '';
   prezime: string = '';
@@ -37,7 +37,10 @@ export interface UserFavoriteListing {
 export interface ChartOptions {
   series: ApexAxisChartSeries;
   chart: ApexChart;
-  colors: any[];
+  dataLabels: ApexDataLabels;
+  stroke: ApexStroke;
   xaxis: ApexXAxis;
+  plotOptions: ApexPlotOptions;
   title: ApexTitleSubtitle;
+  fill: ApexFill
 }
